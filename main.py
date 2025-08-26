@@ -70,6 +70,7 @@ async def on_message(message):
     logger.info(f"OpenAI result for message {message.id}: {status}")
     
     # Handle non-approved messages
+    # Handle non-approved messages
     if status != "approve":
         logger.warning(f"Message {message.id} rejected/needs_edit: {status}")
         
@@ -78,21 +79,8 @@ async def on_message(message):
             message.author, feedback, message.content, message.attachments
         )
         
-        # Delete message
-        message_deleted = False
-        try:
-            await message.delete()
-            message_deleted = True
-            logger.info(f"Message {message.id} deleted successfully")
-        except discord.NotFound:
-            logger.warning(f"Message {message.id} was already deleted")
-        except discord.Forbidden:
-            logger.error(f"No permission to delete message {message.id}")
-        except Exception as e:
-            logger.error(f"Error deleting message {message.id}: {e}")
-        
         # Log actions
-        action_taken = f"DM:{'sent' if dm_sent else 'failed'}, DELETE:{'success' if message_deleted else 'failed'}"
+        action_taken = f"DM:{'sent' if dm_sent else 'failed'}"
         
         # Send webhook log
         await webhook_logger.send_log(
@@ -107,7 +95,7 @@ async def on_message(message):
             ai_status=status, ai_feedback=feedback,
             action_taken=action_taken, processing_time=processing_time
         )
-        
+
     else:
         logger.info(f"Message {message.id} approved")
         
